@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+
+    "strict": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+
+    "baseUrl": "./",
+    "outDir": "bin"
+  },
+  "include": ["src/**/*.ts", "src/data/subtexts.json"],
+  "exclude": ["node_modules", "bin", "src/utils/writeSubTextJSON.ts"]
+}

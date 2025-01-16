@@ -1,0 +1,32 @@
+{
+  "name": "fontsplit",
+  "version": "1.0.0",
+  "descriptions": "フォントファイルを GoogleFonts のようにサブセット化します",
+  "author": "stwch <web.creation.holic@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "font",
+    "subset",
+    "googlefonts",
+    "split"
+  ],
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "commander": "^13.0.0",
+    "fontkit": "^2.0.4",
+    "subset-font": "^2.4.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "update_subtext": "node utils/writeSubTextJSON.js",
+    "exe": "tsc && node dist/index.js",
+    "prepare": "npm run build"
+  },
+  "bin": {
+    "fontsplit": "bin/index.js"
+  }
+}
