@@ -15,7 +15,7 @@ export function writeFontCss({ outPath, publicDir, local, family, weight, style,
             unicodeRange,
             publicDir,
             style,
-            localName: local ?? familyNames.local,
+            localName: local ? familyNames.local : undefined,
             family: family ?? familyNames.main,
             weight: weight ?? weightValue,
         });
