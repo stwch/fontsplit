@@ -1,6 +1,6 @@
 {
   "name": "fontsplit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "descriptions": "フォントファイルを GoogleFonts のようにサブセット化します",
   "author": "stwch <web.creation.holic@gmail.com>",
   "license": "MIT",
