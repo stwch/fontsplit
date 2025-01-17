@@ -55,8 +55,8 @@ fontsplit -t path/to/fontfile -r
 
 ```
 .
-└── output/
-    ├── public-dir/
+└── output
+    ├── public-dir
     │   ├── font-name-1.woff2
     │   ├── font-name-2.woff2
     │   └── ...
@@ -92,6 +92,8 @@ node index.js
 ```javascript
 //index.js
 
+const { exec } = require('node:child_process');
+
 const family = 'yourfontfamily';
 const options = {
   fontFilePath: 'path/to/font',
@@ -112,7 +114,6 @@ const { main, info, trial } = _createCommands();
 _exec(info);
 
 ///////////////////////////////////////////////////////////
-const { exec } = require('node:child_process');
 
 function _exec(command) {
   exec(command, (error, stdout) => {
@@ -127,7 +128,7 @@ function _createCommands() {
   const mainCommand = `fontsplit -t ${fontFilePath} -f ${family} -n ${resultFontFileName} -c ${cssFileName} -o ${outDirPath} -p ${pubDir}${localFlag}`;
   return {
     main: mainCommand,
-    info: `fontsplit -t ${targetPath} -i`,
+    info: `fontsplit -t ${fontFilePath} -i`,
     trial: `${mainCommand} -r`,
   };
 }
