@@ -6,13 +6,20 @@ import { fileURLToPath } from 'url';
 import { asyncSubset } from './utils/asyncSubset.js';
 import { subtextFileName } from './utils/const.js';
 import { getCommandOptions } from './utils/getCommandOptions.js';
+import { viewFontInfo } from './utils/viewFontInfo.js';
 import { writeFontCss } from './utils/writeFontCss.js';
 
 //ログ
 console.log('[FONT-SPLIT]\n');
 
-const { fontFile, family, publicDir, output, weight, style, local, customName, trial } = getCommandOptions();
+const { fontFile, family, publicDir, output, weight, style, local, customName, trial, info } = getCommandOptions();
 const subTexts = trial ? ['あいうえお-_・ABCDEFX', 'はまやらわ？!！?GHIJKY'] : _getSubTexts();
+
+if (info) {
+  viewFontInfo({ fontPath: fontFile });
+  console.log('\n[----------]');
+  process.exit(0);
+}
 
 _createOutdir(resolve(output, publicDir));
 

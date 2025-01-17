@@ -3,6 +3,10 @@
   "version": "1.0.1",
   "descriptions": "フォントファイルを GoogleFonts のようにサブセット化します",
   "author": "stwch <web.creation.holic@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stwch/fontsplit"
+  },
   "license": "MIT",
   "keywords": [
     "font",
@@ -23,7 +27,6 @@
   "scripts": {
     "build": "tsc",
     "update_subtext": "node utils/writeSubTextJSON.js",
-    "exe": "tsc && node dist/index.js",
     "prepare": "npm run build"
   },
   "bin": {

@@ -9,6 +9,7 @@ interface CommandOptions {
   style: string;
   local: boolean;
   trial: boolean;
+  info: boolean;
   customName: {
     font?: string;
     css?: string;
@@ -34,7 +35,11 @@ export function getCommandOptions(): CommandOptions {
       '-l, --local',
       '@font-face の src に local(fontname) を追加します。fontname はフォントファイルから取得します',
     )
-    .option('-r, --trial', 'サブセットする文字を大幅に減らして出力します。出力内容をチェックしたいときに便利です');
+    .option('-r, --trial', 'サブセットする文字を大幅に減らして出力します。出力内容をチェックしたいときに便利です')
+    .option(
+      '-i, --info',
+      'フォントファイルの情報をログに出力します。このオプションを設定しているとサブセット処理はスキップされます。',
+    );
 
   program.parse(process.argv);
   const options = program.opts();
@@ -52,5 +57,6 @@ export function getCommandOptions(): CommandOptions {
     style: options.style,
     local: options.local,
     trial: options.trial,
+    info: options.info,
   };
 }

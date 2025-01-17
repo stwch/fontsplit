@@ -1,7 +1,8 @@
 # fontsplit
 
-フォントファイルを GoogleFonts のように 120 個程のファイルへ分割し、サブセット化します。<br />
-サブセット化したフォントファイルを使用するために fontface css ファイルも同時に生成します。
+フォントファイルを GoogleFonts のように 120 個程のファイルへ分割し、サブセット化します。
+
+サブセット化したフォントファイルを使用するために fontface 用 css ファイルも同時に生成します。
 
 ## インストール
 
@@ -68,6 +69,7 @@ Options:
   -s, --style <string>       @font-faceの font-style (default: "normal")
   -l, --local                @font-face の src に local(fontname) を追加します。fontname はフォントファイルから取得します
   -r, --trial                サブセットする文字を大幅に減らして出力します。出力内容をチェックしたいときに便利です
+  -i, --info                 フォントファイルの情報をログに出力します。このオプションを設定しているとサブセット処理はスキップされます。
   -h, --help                 display help for command
 
 ```

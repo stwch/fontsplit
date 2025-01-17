@@ -1,43 +1,50 @@
 import { readdirSync, writeFileSync } from 'fs';
+import { resolve } from 'path';
+import { extractFontData } from './createFontInfo.js';
 
 type FontCssOptions = {
   outPath: string;
   local?: boolean;
   fileName?: string;
 } & Omit<FontfaceOptions, 'fontFileName' | 'localName' | 'unicodeRange'>;
-export function writeFontCss({ outPath, publicDir, local, family, weight, style, fileName }: FontCssOptions) {
+export function writeFontCss({ outPath, publicDir, local, family, weight, style, fileName }: FontCssOptions): void {
   const splitedFontDir = resolve(outPath, publicDir);
   const fileNames = _getAllFileNamesInDir(splitedFontDir);
-
   //フォントファイルからcssを生成
   const css = fileNames.reduce<string>((accu, fileName) => {
-    const { unicodeRange, localName, familyName, wght } = _createFontInfo({
-      fontPath: resolve(splitedFontDir, fileName),
-    });
+    const fontInfo = extractFontData({ fontPath: resolve(splitedFontDir, fileName) });
+    const { familyNames, weightValue, codePoints } = fontInfo;
+
+    _validFontProp(familyNames.main, weightValue);
+
+    const unicodeRange = _createUnicodeRage(codePoints);
     const fontface = _createFontface({
       fontFileName: fileName,
-      localName: local ? localName : undefined,
-      family: family ?? familyName,
-      publicDir,
-      weight: weight ?? wght,
-      style,
       unicodeRange,
+      publicDir,
+      style,
+      localName: local ?? familyNames.local,
+      family: family ?? familyNames.main,
+      weight: weight ?? weightValue,
     });
     accu += fontface;
     return accu;
   }, '');
 
   const cssFileName = `${fileName}.css`;
-
   const cssSizeKB = _getStringSizeInKB(css);
-  //ログ
+  //ログと出力
   console.log(`\n${cssFileName}: ${cssSizeKB} KB`);
-
   writeFileSync(resolve(outPath, cssFileName), css, 'utf-8');
 }
 
+type FontProp = string | undefined;
+function _validFontProp(family: FontProp, weight: FontProp): void {
+  if (!family) throw new Error('ファイルに font-family が無いので -f, --family オプションの設定が必要です。');
+  if (!weight) throw new Error('ファイルに font-weight が無いので -w, --weight オプションの設定が必要です。');
+}
+
 function _getStringSizeInKB(string: string): number {
-  // UTF-8エンコーディングでバイトサイズを取得
   const byteSize = Buffer.byteLength(string, 'utf8');
   // バイトサイズをKBに変換（小数点以1桁で丸める）
   const sizeInKB = byteSize / 1024;
@@ -59,7 +66,7 @@ interface FontfaceOptions {
   publicDir: string;
   weight?: string;
   style: string;
-  localName?: string;
+  localName: string | boolean;
   unicodeRange?: string;
 }
 export function _createFontface({
@@ -70,65 +77,34 @@ export function _createFontface({
   style,
   localName,
   unicodeRange,
-}: FontfaceOptions) {
+}: FontfaceOptions): string {
   const fontWeight = weight ? `font-weight:${weight};` : '';
   const local = localName ? `local('${localName}'),` : '';
   return `@font-face{font-family:'${family}';font-style:${style};${fontWeight}font-display:swap;src:${local}url(/${publicDir}/${fontFileName})format('woff2');unicode-range:${unicodeRange};}`;
 }
 
-import { createRequire } from 'module';
-import { resolve } from 'path';
-const require = createRequire(import.meta.url);
-const fontkit = require('fontkit');
-
-interface FontInfoOptions {
-  fontPath: string;
-}
-function _createFontInfo({ fontPath }: FontInfoOptions) {
-  const newFont = fontkit.openSync(resolve(fontPath));
-
-  const familyName = newFont.name?.records?.fontFamily?.en as string;
-  let wght: string;
-  if (newFont.fvar) {
-    //バリアブルフォントの場合
-    const axis = newFont.fvar.axis.find((data: any) => data.axisTag === 'wght');
-    wght = `${axis.minValue} ${axis.maxValue}`;
-  } else {
-    wght = newFont['OS/2']?.usWeightClass;
-  }
-  if (!familyName)
-    throw new Error('ファイルからfont-family を取得できませんでした。\n-f, --family オプションの設定が必要です。');
-  if (!wght)
-    throw new Error('ファイルからfont-weight を取得できませんでした。\n-w, --weight オプションの設定が必要です。');
-
-  //ファイルからunicode-range を取得する
-  const groupedCodePoints = _groupSequentialNumbers(newFont.characterSet);
-  const unicodeRange = groupedCodePoints.reduce((accu: string, codePoints: number[], i) => {
-    const isSequential = codePoints.length !== 1;
-    const startUnicide = codePoints[0].toString(16);
+//非文字を含まない unicode-range を生成
+function _createUnicodeRage(codePoints: number[]): string {
+  const groupedCodePoints = _groupSequentialNumbers(codePoints);
+  return groupedCodePoints.reduce((accu: string, _codePoints: number[], i) => {
+    const isSequential = _codePoints.length !== 1;
+    const startUnicide = _codePoints[0].toString(16);
 
     let unicode;
     if (isSequential) {
-      const endUnicode = codePoints[codePoints.length - 1].toString(16);
+      const endUnicode = _codePoints[_codePoints.length - 1].toString(16);
       unicode = `U+${startUnicide}-${endUnicode}`;
     } else {
       unicode = `U+${startUnicide}`;
     }
+    //非文字を除外
     const nonCharRemovedUnicode = _removeNonCharUnicode(unicode);
-    const isNonChar = nonCharRemovedUnicode === '';
 
-    if (isNonChar) return accu;
+    if (!nonCharRemovedUnicode) return accu;
     const needComma = accu !== '';
     accu += needComma ? `,${nonCharRemovedUnicode}` : nonCharRemovedUnicode;
     return accu;
   }, '');
-
-  return {
-    unicodeRange,
-    localName: newFont.postscriptName as string,
-    familyName,
-    wght,
-  };
 }
 
 function _groupSequentialNumbers(numbers: number[]): number[][] {
@@ -154,7 +130,6 @@ function _groupSequentialNumbers(numbers: number[]): number[][] {
   return result;
 }
 
-// Unicodeの非文字（noncharacter）を判定する関数
 function _isNonCharacter(codePoint: number): boolean {
   return (
     (codePoint >= 0xfdd0 && codePoint <= 0xfdef) || // 非文字の予約範囲
@@ -163,8 +138,7 @@ function _isNonCharacter(codePoint: number): boolean {
   );
 }
 
-// unicode-rangeを解析し、非文字を除去したunicode-rangeを返す
-function _removeNonCharUnicode(unicodeRange: string): string {
+function _removeNonCharUnicode(unicodeRange: string): string | null {
   // 正規表現でunicode-rangeの形式をパース
   const rangePattern = /U\+([0-9A-Fa-f]{1,6})(?:-([0-9A-Fa-f]{1,6}))?/g;
   const matches = Array.from(unicodeRange.matchAll(rangePattern));
@@ -192,5 +166,6 @@ function _removeNonCharUnicode(unicodeRange: string): string {
     return validRanges;
   });
 
-  return resultRanges.join(',');
+  const removed = resultRanges.join(',');
+  return removed === '' ? null : removed;
 }

@@ -11,7 +11,8 @@ export function getCommandOptions() {
         .option('-w, --weight <string>', '@font-face の font-weight。指定しない場合はフォントファイルから取得します')
         .option('-s, --style <string>', '@font-faceの font-style', 'normal')
         .option('-l, --local', '@font-face の src に local(fontname) を追加します。fontname はフォントファイルから取得します')
-        .option('-r, --trial', 'サブセットする文字を大幅に減らして出力します。出力内容をチェックしたいときに便利です');
+        .option('-r, --trial', 'サブセットする文字を大幅に減らして出力します。出力内容をチェックしたいときに便利です')
+        .option('-i, --info', 'フォントファイルの情報をログに出力します。このオプションを設定しているとサブセット処理はスキップされます。');
     program.parse(process.argv);
     const options = program.opts();
     return {
@@ -27,5 +28,6 @@ export function getCommandOptions() {
         style: options.style,
         local: options.local,
         trial: options.trial,
+        info: options.info,
     };
 }
