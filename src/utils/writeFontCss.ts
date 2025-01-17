@@ -23,7 +23,7 @@ export function writeFontCss({ outPath, publicDir, local, family, weight, style,
       unicodeRange,
       publicDir,
       style,
-      localName: local ?? familyNames.local,
+      localName: local ? familyNames.local : undefined,
       family: family ?? familyNames.main,
       weight: weight ?? weightValue,
     });
@@ -66,7 +66,7 @@ interface FontfaceOptions {
   publicDir: string;
   weight?: string;
   style: string;
-  localName: string | boolean;
+  localName?: string;
   unicodeRange?: string;
 }
 export function _createFontface({
