@@ -34,7 +34,7 @@ export async function asyncSubset({
   const newFilePath = resolve(resolvedPath.out, newFileName);
 
   //ログ
-  console.log(`${newFileName}: ${fileSizeKB} KB`);
+  console.log(` ${newFileName}: ${fileSizeKB} KB`);
 
   writeFileSync(newFilePath, subsetBuffer);
 }

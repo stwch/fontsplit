@@ -92,7 +92,7 @@ node index.js
 ```javascript
 //index.js
 
-const { exec } = require('node:child_process');
+const { spawn } = require('node:child_process');
 
 const family = 'yourfontfamily';
 const options = {
@@ -111,14 +111,19 @@ const { main, info, trial } = _createCommands();
 //main: サブセットを実行
 //info: フォントファイルの情報をログに表示
 //trial: トライアルモード で実行
-_exec(info);
+_spawn(trial);
 
 ///////////////////////////////////////////////////////////
+function _spawn(command) {
+  const process = spawn(command, { shell: true });
 
-function _exec(command) {
-  exec(command, (error, stdout) => {
-    if (error) throw new Error(`エラー: ${error.message}`);
-    console.log(stdout);
+  process.stdout.on('data', data => {
+    const log = data.toString().replace(/\n$/, '');
+    console.log(log);
+  });
+
+  process.stderr.on('data', data => {
+    console.error(`エラー: ${data.toString()}`);
   });
 }
 
@@ -132,6 +137,16 @@ function _createCommands() {
     trial: `${mainCommand} -r`,
   };
 }
+```
+
+<br />
+
+## コマンド
+
+```bash
+
+fontsplit -t path/to/font -f family -n font-filename -c css-filename -o out-path -p public-dir -l
+
 ```
 
 <br />

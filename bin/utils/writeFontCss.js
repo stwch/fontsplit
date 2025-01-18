@@ -25,7 +25,7 @@ export function writeFontCss({ outPath, publicDir, local, family, weight, style,
     const cssFileName = `${fileName}.css`;
     const cssSizeKB = _getStringSizeInKB(css);
     //ログと出力
-    console.log(`\n${cssFileName}: ${cssSizeKB} KB`);
+    console.log(`\n ${cssFileName}: ${cssSizeKB} KB`);
     writeFileSync(resolve(outPath, cssFileName), css, 'utf-8');
 }
 function _validFontProp(family, weight) {
